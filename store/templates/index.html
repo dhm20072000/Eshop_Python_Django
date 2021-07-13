@@ -1,0 +1,89 @@
+{% extends 'base.html'%}
+{% load static %}
+{% block content %}
+{% load cart %}
+{% load custom_filter %}
+<div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel" style="height:250px !important">
+    <ol class="carousel-indicators">
+      <li  data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+      <li  data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+      <li  data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+    </ol>
+    <div class="carousel-inner">
+      <div class="carousel-item active">
+        <img style="height:250px !important" class="d-block w-100" src="{% static 'images/electronic-deals.jpg'%}" alt="First slide">
+      </div>
+      <div class="carousel-item">
+        <img style="height:250px !important" class="d-block w-100" src="{% static 'images/fruit.jpg'%}" alt="Second slide">
+      </div>
+      <div class="carousel-item">
+        <img style="height:250px !important" class="d-block w-100" src="{% static 'images/clothing-deals.jpg'%}" alt="Third slide">
+      </div>
+    </div>
+    <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="sr-only">Previous</span>
+    </a>
+    <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="sr-only">Next</span>
+    </a>
+  </div>
+
+<div class="container-fluid mt-3">
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="list-group" style="position: sticky;top: 0;">
+                <a href="/" class="list-group-item list-group-item-action">All Products</a>
+                {% for category in categories%}
+                    <a href="/?category={{ category.id }}" class="list-group-item list-group-item-action">{{ category.name }}</a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-9">
+            <div class="row mx-auto">
+                {% for product in products %}
+                    <div class="card mx-auto mb-3" id="{{ product.id }}" style="width: 18rem;">
+                        <img class="card-img-top" src="{{ product.image.url}}" alt="">
+                        <div class="card-body">
+                            <h4 class="card-title">{{ product.name }}</h4>
+                            <p class="card-text"><b>{{ product.price|currency }}</b></p>
+                        </div>
+
+                        <div class="card-footer p-0 no-gutters">
+                          {% if product|is_in_cart:request.session.cart %}
+                            <div class="row no-gutters" style="display: flex;align-items: center;">
+                              <form action="/#{{ product.id }}" method="POST" class="col-2">
+                                {% csrf_token %}
+                                <input hidden type="text" name="product" value="{{ product.id }}">
+                                <input hidden type="text" name="remove" value="True">
+                                <input type="submit" value="-" class="btn btn-block btn-secondary">
+                              </form>
+
+                              <div class="text-center col">{{ product|cart_quantity:request.session.cart }} in Cart</div>
+
+                              <form action="/#{{ product.id }}" method="POST" class="col-2">
+                                {% csrf_token %}
+                                <input hidden type="text" name="product" value="{{ product.id }}">
+                                <input type="submit" value="+" class="btn btn-block btn-secondary">
+                              </form>
+                            </div>
+                          {% else %}
+                          <form action="/#{{ product.id }}" method="POST" class="btn-block">
+                            {% csrf_token %}
+                            <input hidden type="text" name="product" value="{{ product.id }}">
+                            <input type="submit" class="float-right btn btn-light border form-control" value="Add To Cart">
+                          </form>
+                          {% endif %}
+                        </div>
+                    </div>
+                {% endfor %}
+                
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{% endblock content%}
